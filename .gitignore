@@ -1,0 +1,10 @@
+*.beam
+*.ez
+build/
+erl_crash.dump
+
+.env
+
+# OS X
+.DS_Store
+Thumbs.db
