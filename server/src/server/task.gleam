@@ -1,7 +1,11 @@
 import gleam/http
 import wisp.{type Request, type Response}
 
-pub fn all(req: Request) -> Response {
+// TODO Might decide to move task.gleam into task folder
+//  This will help with getting all task code together
+//  But importing will have task/task (which isn't a big deal I guess)
+
+pub fn tasks(req: Request) -> Response {
   case req.method {
     http.Get -> list_tasks()
     http.Post -> create_task(req)
@@ -9,7 +13,7 @@ pub fn all(req: Request) -> Response {
   }
 }
 
-pub fn one(req: Request, id: String) -> Response {
+pub fn task(req: Request, id: String) -> Response {
   case req.method {
     http.Get -> show_task(id)
     http.Patch -> update_task(req, id)
