@@ -1,0 +1,6 @@
+[env]
+PGHOST = { required = true }
+PGPORT = { required = true }
+PGDATABASE = { required = true }
+PGUSER = { required = true }
+PGPASSWORD = { required = true }
