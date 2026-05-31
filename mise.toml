@@ -1,6 +1,12 @@
 [env]
-PGHOST = { required = true }
-PGPORT = { required = true }
-PGDATABASE = { required = true }
-PGUSER = { required = true }
+# database
+PGHOST = "db"
+PGPORT = 5432
+PGDATABASE = "to-done-dev"
+PGUSER = "to-done-user-dev"
 PGPASSWORD = { required = true }
+
+#server
+SECRET_KEY_BASE = { required = "Create with `openssl rand -hex 64`" }
+SERVER_HOST = "0.0.0.0"
+SERVER_PORT = 8000
