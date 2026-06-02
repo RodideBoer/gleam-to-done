@@ -5,6 +5,12 @@ import pog
 import server/config
 import server/context
 
+pub type DatabaseError {
+  UnexpectedNoRows
+  RecordNotFound
+  QueryError(pog.QueryError)
+}
+
 pub fn start(config: config.Config) -> context.DbPoolName {
   let db_pool_name = process.new_name("db")
   let db_pool =
