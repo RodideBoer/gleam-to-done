@@ -24,6 +24,28 @@ pub fn all_tasks(
   )
 }
 
+pub fn get_task(
+  db_conn: pog.Connection,
+  id: Int,
+) -> Result(Task, db.DatabaseError) {
+  let query_result =
+    db_conn
+    |> sql.get_task(id)
+    |> result.map_error(db.QueryError)
+  use pog.Returned(_, rows) <- result.try(query_result)
+  let row_result =
+    rows
+    |> list.first
+    |> result.replace_error(db.RecordNotFound)
+  use row <- result.map(row_result)
+  Task(
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    completed: row.completed,
+  )
+}
+
 pub fn create_task(
   db_conn: pog.Connection,
   input: TaskInput,
