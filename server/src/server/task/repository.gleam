@@ -13,8 +13,12 @@ pub fn all_tasks(
     db_conn
     |> sql.all_tasks
     |> result.map_error(db.QueryError)
+  // Just to explain what we're doing for real,
+  //  here is the same code without pattern matching.
+  //  Not sure which I prefer yet
+  // use returned <- result.map(query_result)
+  // use row <- list.map(returned.rows)
   use pog.Returned(_, rows) <- result.map(query_result)
-  //use returned <- result.map(query_result)
   use row <- list.map(rows)
   Task(
     id: row.id,
