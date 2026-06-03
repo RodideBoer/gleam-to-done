@@ -1,4 +1,9 @@
+# mise-en-place config
+
 [env]
+# override the required sensitive environment variables in a mise.local.toml
+# and any other environment variables if you want to for any reason
+
 # database
 PGHOST = "db"
 PGPORT = 5432
@@ -6,7 +11,7 @@ PGDATABASE = "to-done-dev"
 PGUSER = "to-done-user-dev"
 PGPASSWORD = { required = true }
 
-#server
+# server
 SECRET_KEY_BASE = { required = "Create with `openssl rand -hex 64`" }
 SERVER_HOST = "0.0.0.0"
 SERVER_PORT = 8000
