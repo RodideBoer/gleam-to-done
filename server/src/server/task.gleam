@@ -1,5 +1,9 @@
 import gleam/http
+import gleam/json
 import server/context.{type Context}
+import server/task/repository
+import server/web
+import task
 import wisp.{type Request, type Response}
 
 // TODO Might decide to move task.gleam into task folder
@@ -23,14 +27,24 @@ pub fn task(req: Request, ctx: Context, id: String) -> Response {
   }
 }
 
-fn list_tasks(_ctx: Context) -> Response {
-  wisp.ok()
-  |> wisp.json_body("[]")
+fn list_tasks(ctx: Context) -> Response {
+  let db = context.db_conn(ctx)
+  use tasks <- web.map_result(repository.all_tasks(db))
+  tasks
+  |> json.array(task.task_to_json)
+  |> json.to_string
+  |> wisp.json_body(wisp.ok(), _)
 }
 
-fn create_task(_req: Request, _ctx: Context) -> Response {
-  wisp.created()
-  |> wisp.json_body("{}")
+fn create_task(req: Request, ctx: Context) -> Response {
+  let db = context.db_conn(ctx)
+  use json <- wisp.require_json(req)
+  use input <- web.decode_body(json, task.task_input_decoder())
+  use task <- web.map_result(repository.create_task(db, input))
+  task
+  |> task.task_to_json
+  |> json.to_string
+  |> wisp.json_body(wisp.created(), _)
 }
 
 fn show_task(_req: Request, _ctx: Context, id: String) -> Response {
