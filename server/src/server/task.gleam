@@ -47,9 +47,14 @@ fn create_task(req: Request, ctx: Context) -> Response {
   |> wisp.json_body(wisp.created(), _)
 }
 
-fn show_task(_req: Request, _ctx: Context, id: String) -> Response {
-  wisp.ok()
-  |> wisp.json_body("{'id': " <> id <> "}")
+fn show_task(_req: Request, ctx: Context, id: String) -> Response {
+  let db = context.db_conn(ctx)
+  use id <- web.parse_int(id)
+  use task <- web.map_result(repository.get_task(db, id))
+  task
+  |> task.task_to_json
+  |> json.to_string
+  |> wisp.json_body(wisp.ok(), _)
 }
 
 fn update_task(_req: Request, _ctx: Context, id: String) -> Response {
@@ -57,6 +62,9 @@ fn update_task(_req: Request, _ctx: Context, id: String) -> Response {
   |> wisp.json_body("{'id': " <> id <> "}")
 }
 
-fn delete_task(_req: Request, _ctx: Context, _id: String) -> Response {
+fn delete_task(_req: Request, ctx: Context, id: String) -> Response {
+  let db = context.db_conn(ctx)
+  use id <- web.parse_int(id)
+  use _ <- web.map_result(repository.delete_task(db, id))
   wisp.no_content()
 }
