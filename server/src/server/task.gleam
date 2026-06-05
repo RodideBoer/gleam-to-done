@@ -29,7 +29,7 @@ pub fn task(req: Request, ctx: Context, id: String) -> Response {
 
 fn list_tasks(ctx: Context) -> Response {
   let db = context.db_conn(ctx)
-  use tasks <- web.map_result(repository.all_tasks(db))
+  use tasks <- web.require_ok(repository.all_tasks(db))
   tasks
   |> json.array(task.task_to_json)
   |> json.to_string
@@ -40,7 +40,7 @@ fn create_task(req: Request, ctx: Context) -> Response {
   let db = context.db_conn(ctx)
   use json <- wisp.require_json(req)
   use input <- web.decode_body(json, task.task_input_decoder())
-  use task <- web.map_result(repository.create_task(db, input))
+  use task <- web.require_ok(repository.create_task(db, input))
   task
   |> task.task_to_json
   |> json.to_string
@@ -49,8 +49,8 @@ fn create_task(req: Request, ctx: Context) -> Response {
 
 fn show_task(_req: Request, ctx: Context, id: String) -> Response {
   let db = context.db_conn(ctx)
-  use id <- web.parse_int(id)
-  use task <- web.map_result(repository.get_task(db, id))
+  use id <- web.require_int(id)
+  use task <- web.require_ok(repository.get_task(db, id))
   task
   |> task.task_to_json
   |> json.to_string
@@ -64,7 +64,7 @@ fn update_task(_req: Request, _ctx: Context, id: String) -> Response {
 
 fn delete_task(_req: Request, ctx: Context, id: String) -> Response {
   let db = context.db_conn(ctx)
-  use id <- web.parse_int(id)
-  use _ <- web.map_result(repository.delete_task(db, id))
+  use id <- web.require_int(id)
+  use _ <- web.require_ok(repository.delete_task(db, id))
   wisp.no_content()
 }

@@ -1,9 +1,7 @@
 import gleam/dynamic
 import gleam/dynamic/decode
 import gleam/int
-import gleam/json
 import server/db
-import task
 import wisp
 
 pub fn middleware(
@@ -17,7 +15,7 @@ pub fn middleware(
   handle_request(req)
 }
 
-pub fn map_result(
+pub fn require_ok(
   result: Result(a, db.DatabaseError),
   next: fn(a) -> wisp.Response,
 ) -> wisp.Response {
@@ -39,7 +37,10 @@ pub fn decode_body(
   }
 }
 
-pub fn parse_int(id: String, next: fn(Int) -> wisp.Response) -> wisp.Response {
+pub fn require_int(
+  id: String,
+  next: fn(Int) -> wisp.Response,
+) -> wisp.Response {
   case int.parse(id) {
     Ok(value) -> next(value)
     _ -> wisp.not_found()
