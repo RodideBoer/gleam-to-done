@@ -10,6 +10,7 @@ PGPORT = 5432
 PGDATABASE = "to-done-dev"
 PGUSER = "to-done-user-dev"
 PGPASSWORD = { required = true }
+TEST_DB_NAME = "to-done-test"
 
 # server
 SECRET_KEY_BASE = { required = "Create with `openssl rand -hex 64`" }
