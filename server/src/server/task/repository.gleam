@@ -12,7 +12,6 @@ pub fn all_tasks(
   let query_result =
     db_conn
     |> sql.all_tasks
-    |> echo
     |> result.map_error(db.QueryError)
   // Just to explain what we're doing for real,
   //  here is the same code without pattern matching.
