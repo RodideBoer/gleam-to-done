@@ -6,7 +6,7 @@ import task
 import test_context
 import wisp/simulate
 
-pub fn list_tasks_with_wrong_method_test() {
+pub fn task_with_wrong_method_test() {
   let ctx = test_context.get()
   let response =
     simulate.request(http.Delete, "/api/task")
