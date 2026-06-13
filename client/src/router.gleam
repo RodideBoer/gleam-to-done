@@ -10,6 +10,7 @@ import route
 
 pub type Page {
   TasksPage(tasks.Model)
+  NotFoundPage(not_found.Model)
 }
 
 pub type Msg {
@@ -30,12 +31,17 @@ pub fn update(page: Page, msg: Msg) -> #(Page, Effect(Msg)) {
       let #(model, effect) = tasks.update(model, msg)
       #(TasksPage(model), effect.map(effect, TasksPageSentMessage))
     }
+    NotFoundPage(model), msg -> {
+      let #(model, _) = not_found.update(model, msg)
+      #(NotFoundPage(model), effect.none())
+    }
   }
 }
 
 pub fn view(page: Page) -> Element(Msg) {
   case page {
     TasksPage(model) -> element.map(tasks.view(model), TasksPageSentMessage)
+    NotFoundPage(model) -> not_found.view(model)
   }
 }
 
@@ -58,6 +64,10 @@ pub fn page_from_route(route: route.Route) -> #(Page, Effect(Msg)) {
     route.Tasks -> {
       let #(model, effect) = tasks.init()
       #(TasksPage(model), effect.map(effect, TasksPageSentMessage))
+    }
+    route.NotFound(uri) -> {
+      let #(model, _) = not_found.init(uri)
+      #(NotFoundPage(model), effect.none())
     }
   }
 }
