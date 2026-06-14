@@ -17,6 +17,19 @@ pub fn get(path: String, decoder: Decoder(a)) -> Promise(Result(a, ApiError)) {
   |> execute(expect: 200, decoder:)
 }
 
+pub fn post(
+  path: String,
+  decoder: Decoder(a),
+  json body: String,
+) -> Promise(Result(a, ApiError)) {
+  use req <- with_json_request(path)
+  req
+  |> request.set_method(http.Post)
+  |> request.set_header("content-type", "application/json")
+  |> request.set_body(body)
+  |> execute(expect: 201, decoder:)
+}
+
 fn api_base_url() -> String {
   browser.window_location_origin()
 }

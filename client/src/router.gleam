@@ -4,18 +4,21 @@ import gleam/uri.{type Uri}
 import lustre/effect.{type Effect}
 import lustre/element.{type Element}
 import modem
+import page/new_task
 import page/not_found
 import page/tasks
 import route
 
 pub type Page {
   TasksPage(tasks.Model)
+  NewTaskPage(new_task.Model)
   NotFoundPage(not_found.Model)
 }
 
 pub type Msg {
   OnRouteChanged(route.Route)
   TasksPageSentMessage(tasks.Msg)
+  NewTaskPageSentMessage(new_task.Msg)
 }
 
 pub fn init(initial_uri: Result(Uri, Nil)) -> #(Page, Effect(Msg)) {
@@ -31,16 +34,23 @@ pub fn update(page: Page, msg: Msg) -> #(Page, Effect(Msg)) {
       let #(model, effect) = tasks.update(model, msg)
       #(TasksPage(model), effect.map(effect, TasksPageSentMessage))
     }
+    NewTaskPage(model), NewTaskPageSentMessage(msg) -> {
+      let #(model, effect) = new_task.update(model, msg)
+      #(NewTaskPage(model), effect.map(effect, NewTaskPageSentMessage))
+    }
     NotFoundPage(model), msg -> {
       let #(model, _) = not_found.update(model, msg)
       #(NotFoundPage(model), effect.none())
     }
+    _, _ -> panic as "Page and Msg mismatch"
   }
 }
 
 pub fn view(page: Page) -> Element(Msg) {
   case page {
     TasksPage(model) -> element.map(tasks.view(model), TasksPageSentMessage)
+    NewTaskPage(model) ->
+      element.map(new_task.view(model), NewTaskPageSentMessage)
     NotFoundPage(model) -> not_found.view(model)
   }
 }
@@ -64,6 +74,10 @@ pub fn page_from_route(route: route.Route) -> #(Page, Effect(Msg)) {
     route.Tasks -> {
       let #(model, effect) = tasks.init()
       #(TasksPage(model), effect.map(effect, TasksPageSentMessage))
+    }
+    route.NewTask -> {
+      let #(model, effect) = new_task.init()
+      #(NewTaskPage(model), effect.map(effect, NewTaskPageSentMessage))
     }
     route.NotFound(uri) -> {
       let #(model, _) = not_found.init(uri)
