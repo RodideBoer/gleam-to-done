@@ -1,4 +1,5 @@
 import browser
+import component/task_form.{UserUpdatedDescription, UserUpdatedTitle}
 import error.{type ApiError}
 import gleam/javascript/promise
 import gleam/option.{type Option, None, Some}
@@ -22,8 +23,7 @@ pub type Model {
 }
 
 pub type Msg {
-  UserUpdatedTitle(String)
-  UserUpdatedDescription(String)
+  FormMsg(task_form.Msg)
   UserClickedBack
   UserSubmittedForm
   ApiCreatedTask(Result(Task, ApiError))
@@ -38,11 +38,12 @@ pub fn init() -> #(Model, Effect(Msg)) {
 
 pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
   case msg {
-    UserUpdatedTitle(title) -> #(Model(..model, title:), effect.none())
-    UserUpdatedDescription(description) -> #(
+    FormMsg(UserUpdatedTitle(title)) -> #(Model(..model, title:), effect.none())
+    FormMsg(UserUpdatedDescription(description)) -> #(
       Model(..model, description:),
       effect.none(),
     )
+    FormMsg(task_form.UserUpdatedCompleted(_)) -> #(model, effect.none())
     UserClickedBack -> #(model, effect.from(fn(_) { browser.history_back() }))
     UserSubmittedForm ->
       case model.title {
@@ -79,25 +80,7 @@ pub fn view(model: Model) -> Element(Msg) {
       None -> element.none()
       Some(error) -> html.p([], [element.text(error)])
     },
-    html.div([], [
-      html.label([], [element.text("Title")]),
-      html.input([
-        attribute.type_("text"),
-        attribute.placeholder("Task title"),
-        attribute.value(model.title),
-        event.on_input(UserUpdatedTitle),
-      ]),
-    ]),
-    html.div([], [
-      html.label([], [element.text("Description")]),
-      html.textarea(
-        [
-          attribute.placeholder("Optional description"),
-          event.on_input(UserUpdatedDescription),
-        ],
-        model.description,
-      ),
-    ]),
+    element.map(task_form.view(model.title, model.description, None), FormMsg),
     html.div([], [
       html.button(
         [
