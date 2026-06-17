@@ -56,7 +56,9 @@ pub fn view_task(task: Task) -> Element(Msg) {
       attribute.checked(task.completed),
       attribute.disabled(True),
     ]),
-    element.text(task.title <> " — " <> task.description),
+    html.a([attribute.href(route.to_path(route.EditTask(task.id)))], [
+      element.text(task.title <> " — " <> task.description),
+    ]),
   ])
 }
 

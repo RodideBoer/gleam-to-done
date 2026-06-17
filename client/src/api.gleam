@@ -30,6 +30,34 @@ pub fn post(
   |> execute(expect: 201, decoder:)
 }
 
+pub fn patch(
+  path: String,
+  decoder: Decoder(a),
+  json body: String,
+) -> Promise(Result(a, ApiError)) {
+  use req <- with_json_request(path)
+  req
+  |> request.set_method(http.Patch)
+  |> request.set_header("content-type", "application/json")
+  |> request.set_body(body)
+  |> execute(expect: 200, decoder:)
+}
+
+pub fn delete(path: String) -> Promise(Result(Nil, ApiError)) {
+  use req <- with_json_request(path)
+  req
+  |> request.set_method(http.Delete)
+  |> fetch.send
+  |> promise.map(result.map_error(_, FetchError))
+  |> promise.map_try(fn(response) {
+    use <- bool.guard(
+      response.status != 204,
+      Error(UnexpectedStatus(response.status)),
+    )
+    Ok(Nil)
+  })
+}
+
 fn api_base_url() -> String {
   browser.window_location_origin()
 }

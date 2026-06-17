@@ -47,7 +47,7 @@ pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
     UserClickedBack -> #(model, effect.from(fn(_) { browser.history_back() }))
     UserSubmittedForm ->
       case model.title {
-        "" -> #(Model(..model, error: Some("Name is required")), effect.none())
+        "" -> #(Model(..model, error: Some("Title is required")), effect.none())
         _ -> #(
           Model(..model, submitting: True, error: None),
           post_task(model.title, model.description),
