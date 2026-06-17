@@ -5,6 +5,7 @@ erl_crash.dump
 
 .env
 mise.local.toml
+mise.prod.toml
 
 # Lustre Dev Tools
 .lustre
