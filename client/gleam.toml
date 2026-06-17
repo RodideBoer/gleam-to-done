@@ -34,5 +34,5 @@ title = "To Done"
 proxy = { from = "/api", to = "http://localhost:8000/api" }
 
 [tools.lustre.bin]
-# Use the system-installed `bun` binary instead of downloading one automatically.
-#bun = "system"
+bun = "system"
+tailwindcss = "./node_modules/.bin/tailwindcss"

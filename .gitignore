@@ -7,11 +7,11 @@ erl_crash.dump
 mise.local.toml
 
 # Lustre Dev Tools
-client/.lustre
-client/dist
+.lustre
+dist
 
 # Bun
-client/node_modules
+node_modules
 
 # OS X
 .DS_Store
