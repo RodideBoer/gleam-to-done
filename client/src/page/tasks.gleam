@@ -1,13 +1,15 @@
 import error.{type ApiError}
 import gleam/javascript/promise
 import gleam/list
+import gleam/result
 import lustre/attribute
 import lustre/effect.{type Effect}
 import lustre/element.{type Element}
 import lustre/element/html
+import lustre/event
 import route
 import service/task_service
-import task.{type Task}
+import task.{type Task, Task}
 
 pub type Model {
   Model(tasks: Result(List(Task), ApiError), loading: Bool)
@@ -15,13 +17,15 @@ pub type Model {
 
 pub type Msg {
   ApiReturnedTasks(Result(List(Task), ApiError))
+  UserToggledTask(Task, Bool)
+  ApiUpdatedTask(Result(Task, ApiError))
 }
 
 pub fn init() -> #(Model, Effect(Msg)) {
   #(Model(tasks: Ok([]), loading: True), fetch_tasks())
 }
 
-pub fn update(_model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
+pub fn update(model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
   case msg {
     ApiReturnedTasks(Ok(tasks)) -> #(
       Model(Ok(tasks), loading: False),
@@ -31,6 +35,23 @@ pub fn update(_model: Model, msg: Msg) -> #(Model, Effect(Msg)) {
       Model(Error(err), loading: False),
       effect.none(),
     )
+    UserToggledTask(task, completed) -> #(model, toggle_task(task, completed))
+    ApiUpdatedTask(Ok(task)) -> #(
+      Model(
+        ..model,
+        tasks: result.map(
+          model.tasks,
+          list.map(_, fn(t) {
+            case t.id == task.id {
+              True -> task
+              False -> t
+            }
+          }),
+        ),
+      ),
+      effect.none(),
+    )
+    ApiUpdatedTask(Error(_)) -> #(model, effect.none())
   }
 }
 
@@ -54,7 +75,7 @@ pub fn view_task(task: Task) -> Element(Msg) {
     html.input([
       attribute.type_("checkbox"),
       attribute.checked(task.completed),
-      attribute.disabled(True),
+      event.on_check(UserToggledTask(task, _)),
     ]),
     html.a([attribute.href(route.to_path(route.EditTask(task.id)))], [
       element.text(task.title <> " — " <> task.description),
@@ -66,6 +87,15 @@ fn fetch_tasks() -> Effect(Msg) {
   use dispatch <- effect.from()
   task_service.fetch_tasks()
   |> promise.map(ApiReturnedTasks)
+  |> promise.tap(dispatch)
+  Nil
+}
+
+fn toggle_task(task: Task, completed: Bool) -> Effect(Msg) {
+  use dispatch <- effect.from()
+  Task(..task, completed:)
+  |> task_service.patch_task()
+  |> promise.map(ApiUpdatedTask)
   |> promise.tap(dispatch)
   Nil
 }
